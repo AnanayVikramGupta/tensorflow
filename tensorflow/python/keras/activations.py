@@ -21,6 +21,7 @@ from tensorflow.python.keras.utils.generic_utils import serialize_keras_object
 from tensorflow.python.ops import math_ops
 from tensorflow.python.ops import nn
 from tensorflow.python.util import dispatch
+from tensorflow import cast, int32
 
 # b/123041942
 # In TF 2.x, if the `tf.nn.softmax` is used as an activation function in Keras
@@ -462,6 +463,27 @@ def linear(x):
       The input, unmodified.
   """
   return x
+
+@dispatch.add_dispatch_support
+def heaviside(x, left_continuity=False):
+  """Heaviside Step activation function.
+
+  For example:
+
+  >>> a = tf.constant([-3.0,-1.0, 0.0,1.0,3.0], dtype = tf.float32)
+  >>> b = tf.keras.activations.heaviside(a)
+  >>> b.numpy()
+  array([1, 1, 0, 0, 0], dtype=int32)
+
+  Args:
+      x: Input tensor.
+      left_continuity: A boolean
+  Returns:
+      The right continous heaviside activation function, x < 0 unless 
+      left_continuity is True in which case the left continous 
+      heaviside function x <= 0
+  """
+  return cast((x <= 0 if left_continuity else x < 0), int32)
 
 
 @dispatch.add_dispatch_support
